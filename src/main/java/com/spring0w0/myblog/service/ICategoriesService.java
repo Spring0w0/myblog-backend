@@ -16,4 +16,18 @@ public interface ICategoriesService extends IService<Categories> {
      * @return 分类列表
      */
     List<CategoriesVO> getAllCategories();
+
+    /**
+     * 新增分类
+     * @param name
+     * @return
+     */
+    CategoriesVO saveCategories(String name);
+
+    /**
+     * 删除分类
+     * @param id
+     * @return
+     */
+    boolean deleteTag(Long id);
 }

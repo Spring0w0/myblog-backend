@@ -80,6 +80,13 @@ public class PostsServiceImpl extends ServiceImpl<PostsMapper, Posts> implements
 
     @Override
     public PostDetailVO getPostDetail(long id) {
+        // 增加浏览量
+        this.lambdaUpdate()
+                .setSql("view_count = view_count + 1")
+                .eq(Posts::getId, id)
+                .update();
+        
+        // 获取文章详情
         Posts posts = this.getById(id);
         return BeanUtil.copyProperties(posts, PostDetailVO.class);
     }

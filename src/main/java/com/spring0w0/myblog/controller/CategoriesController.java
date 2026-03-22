@@ -4,17 +4,16 @@ import com.spring0w0.myblog.common.Message;
 import com.spring0w0.myblog.service.ICategoriesService;
 import com.spring0w0.myblog.vo.CategoriesVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Spring0w0
  */
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoriesController {
 
@@ -29,4 +28,21 @@ public class CategoriesController {
         List<CategoriesVO> categories = categoriesService.getAllCategories();
         return Message.success(categories, "成功");
     }
+
+    @PostMapping
+    public Message<CategoriesVO> saveCategories(@RequestBody Map<String, String>  params) {
+        CategoriesVO categoriesVO = categoriesService.saveCategories(params.get("name"));
+        return Message.success(categoriesVO);
+    }
+
+    @DeleteMapping("{id}")
+    public Message<String> deleteCategories(@PathVariable Long id) {
+        boolean bool =  categoriesService.deleteTag(id);
+        if (bool) {
+            return Message.success("");
+        }else {
+            return Message.error("");
+        }
+    }
+
 }

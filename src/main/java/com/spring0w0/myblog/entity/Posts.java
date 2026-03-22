@@ -1,8 +1,13 @@
 package com.spring0w0.myblog.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.NoArgsConstructor;
+
 
 import java.time.LocalDateTime;
 
@@ -10,10 +15,14 @@ import java.time.LocalDateTime;
  * @author Spring0w0
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Posts {
     /**
      * 主键id
      */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -52,7 +61,7 @@ public class Posts {
     private String status;
 
     /**
-     * 阅读量
+     * 阅读量,初次新增文章时，数据库会默认设置为0
      */
     private Integer viewCount;
 

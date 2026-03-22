@@ -9,6 +9,11 @@ import lombok.Data;
 public class TagVO {
 
     /**
+     * id
+     */
+    private Long id;
+
+    /**
      * 标签名
      */
     private String name;

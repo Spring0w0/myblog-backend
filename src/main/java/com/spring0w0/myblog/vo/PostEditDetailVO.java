@@ -1,10 +1,8 @@
-package com.spring0w0.myblog.dto;
+package com.spring0w0.myblog.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
  * @author Spring0w0
@@ -12,7 +10,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostListDTO {
+public class PostEditDetailVO {
+    /**
+     * 主键id
+     */
+    private Long id;
 
     /**
      * 文章标题，必填
@@ -25,7 +27,7 @@ public class PostListDTO {
     private String summary;
 
     /**
-     * Markdown原文，必填
+     * Markdown原文
      */
     private String content;
 
@@ -35,12 +37,19 @@ public class PostListDTO {
     private String cover;
 
     /**
-     * 标签数组，使用 JSON 格式存储
+     * 标签
      */
-    private List<String> tags;
+    private String tags;
 
     /**
-     * 阅读时间，单位：分钟
+     * 分类
      */
-    private Integer readTime;
+    private String categories;
+
+    /**
+     * 文章状态：PUBLISHED（已发布）、DRAFT（草稿）
+     */
+    private String status;
+
+
 }

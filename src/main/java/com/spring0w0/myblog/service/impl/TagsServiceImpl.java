@@ -24,4 +24,18 @@ public class TagsServiceImpl extends ServiceImpl<TagsMapper, Tags> implements IT
         
         return BeanUtil.copyToList(tags, TagVO.class);
     }
+
+    @Override
+    public TagVO saveTag(String name) {
+        Tags tags = Tags.builder()
+                .name(name)
+                .count(0)
+                .build();
+        return BeanUtil.copyProperties(tags, TagVO.class);
+    }
+
+    @Override
+    public boolean deleteTag(Long id) {
+        return this.removeById(id);
+    }
 }

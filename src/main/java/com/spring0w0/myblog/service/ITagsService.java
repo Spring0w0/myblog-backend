@@ -16,4 +16,18 @@ public interface ITagsService extends IService<Tags> {
      * @return 标签列表
      */
     List<TagVO> getAllTags();
+
+    /**
+     * 保存标签
+     * @param name
+     */
+    TagVO saveTag(String name);
+
+    /**
+     * 删除标签
+     *
+     * @param id
+     * @return
+     */
+    boolean deleteTag(Long id);
 }

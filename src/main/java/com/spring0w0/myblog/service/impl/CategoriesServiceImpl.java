@@ -24,4 +24,18 @@ public class CategoriesServiceImpl extends ServiceImpl<CategoriesMapper, Categor
         
         return BeanUtil.copyToList(categories, CategoriesVO.class);
     }
+
+    @Override
+    public CategoriesVO saveCategories(String name) {
+        Categories categories = Categories.builder()
+                .name(name)
+                .count(0)
+                .build();
+        return BeanUtil.copyProperties(categories, CategoriesVO.class);
+    }
+
+    @Override
+    public boolean deleteTag(Long id) {
+        return this.removeById(id);
+    }
 }

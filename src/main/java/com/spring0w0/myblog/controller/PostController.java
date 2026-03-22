@@ -13,7 +13,7 @@ import java.util.List;
  * @author Spring0w0
  */
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
 

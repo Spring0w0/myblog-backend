@@ -10,6 +10,11 @@ import lombok.Data;
 public class CategoriesVO {
 
     /**
+     * id
+     */
+    private Long id;
+
+    /**
      * 分类名称
      */
     private String name;
