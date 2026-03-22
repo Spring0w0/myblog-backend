@@ -1,0 +1,33 @@
+# 生产环境配置
+upload:
+  path: /app/uploads/  # 生产环境上传路径（容器内路径）
+  base-url: http://localhost:8080/uploads  # 图片访问基础URL（生产环境请替换为实际域名）
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB #最大10MB
+      max-request-size: 10MB
+  web:
+    resources:
+      static-locations: file:${upload.path},classpath:/static/
+  application:
+    name: myblog-backend
+
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://mysql:3306/my_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: admin
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# 服务器配置
+server:
+  port: 8080
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.spring0w0.myblog.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

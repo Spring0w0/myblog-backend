@@ -4,6 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.mybatis.spring.annotation.MapperScan;
 
+/**
+ * @author Spring0w0
+ */
 @SpringBootApplication
 @MapperScan("com.spring0w0.myblog.mapper")  // 扫描 Mapper 接口
 public class MyblogBackendApplication {
