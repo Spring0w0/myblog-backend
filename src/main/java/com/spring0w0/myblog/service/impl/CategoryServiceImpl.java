@@ -11,12 +11,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spring0w0.myblog.common.exception.BusinessException;
 import com.spring0w0.myblog.mapper.CategoryMapper;
 import com.spring0w0.myblog.pojo.dto.CategoryDTO;
+import com.spring0w0.myblog.mapper.ArticleMapper;
 import com.spring0w0.myblog.pojo.po.Article;
 import com.spring0w0.myblog.pojo.po.Category;
 import com.spring0w0.myblog.pojo.vo.CategoryDetailVO;
 import com.spring0w0.myblog.pojo.vo.CategoryPageVO;
 import com.spring0w0.myblog.pojo.vo.CategoryVO;
-import com.spring0w0.myblog.service.IArticleService;
 import com.spring0w0.myblog.service.ICategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
 
-    private final IArticleService articleService;
+    private final ArticleMapper articleMapper;
 
 
     /**
@@ -72,7 +72,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             throw new BusinessException("默认分类不能删除");
         }
         // 删除分类前，需要将该分类下的文章全部设置成未分类(category_id = 1)
-        articleService.update(new LambdaUpdateWrapper<Article>()
+        articleMapper.update(null, new LambdaUpdateWrapper<Article>()
                 .eq(Article::getCategoryId, id)
                 .set(Article::getCategoryId, 1));
         // 再删除该分类
