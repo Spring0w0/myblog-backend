@@ -12,6 +12,11 @@ public class TagVO {
      */
     private Integer id;
     /**
+     * id
+     */
+    private Long id;
+
+    /**
      * 标签名
      */
     private String name;
