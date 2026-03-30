@@ -5,6 +5,11 @@ import com.spring0w0.myblog.common.domain.Message;
 import com.spring0w0.myblog.pojo.dto.ArticleDTO;
 import com.spring0w0.myblog.pojo.po.Article;
 import com.spring0w0.myblog.pojo.vo.ArticlePageVO;
+import com.spring0w0.myblog.pojo.vo.DraftVO;
+import com.spring0w0.myblog.pojo.vo.HotArticleVO;
+import com.spring0w0.myblog.pojo.vo.RecentArticleVO;
+
+import java.util.List;
 
 /**
  * @author Spring0w0
@@ -48,5 +53,23 @@ public interface IArticleService extends IService<Article> {
      * @return 文章分页信息
      */
     ArticlePageVO getArticlePage(Integer page, Integer pageSize, Integer status, String title);
+
+    /**
+     * 获取热门文章
+     * @return 热门文章
+     */
+    List<HotArticleVO> getHotArticle();
+
+    /**
+     * 获取最近文章
+      * @return 最近文章
+     */
+    List<RecentArticleVO> getRecentArticle();
+
+    /**
+     * 获取草稿
+     * @return 草稿
+     */
+    List<DraftVO> getDraft();
 
 }

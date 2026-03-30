@@ -13,10 +13,7 @@ import com.spring0w0.myblog.pojo.po.Article;
 import com.spring0w0.myblog.pojo.po.ArticleTag;
 import com.spring0w0.myblog.pojo.po.Category;
 import com.spring0w0.myblog.pojo.po.Tag;
-import com.spring0w0.myblog.pojo.vo.ArticlePageVO;
-import com.spring0w0.myblog.pojo.vo.ArticleVO;
-import com.spring0w0.myblog.pojo.vo.CategoryVO;
-import com.spring0w0.myblog.pojo.vo.TagVO;
+import com.spring0w0.myblog.pojo.vo.*;
 import com.spring0w0.myblog.service.IArticleService;
 import com.spring0w0.myblog.service.IArticleTagService;
 import com.spring0w0.myblog.service.ICategoryService;
@@ -151,32 +148,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .like(StrUtil.isNotBlank(title), Article::getTitle, title)
                 .eq(ObjectUtil.isNotEmpty(status), Article::getStatus, status)
                 .orderByDesc(Article::getCreateTime);
-    
+
         Page<Article> articlePage = this.page(pageParam, queryWrapper);
         List<Article> articles = articlePage.getRecords();
-    
+
         if (ObjectUtil.isEmpty(articles)) {
             throw new BusinessException("没有找到文章");
         }
-    
+
         // 获取所有文章ID和分类ID
         List<Integer> articleIds = articles.stream().map(Article::getId).toList();
         List<Integer> categoryIds = articles.stream().map(Article::getCategoryId).distinct().toList();
-    
+
         // 批量查询分类信息，构建Map
         Map<Integer, Category> categoryMap = categoryService.listByIds(categoryIds).stream()
                 .collect(java.util.stream.Collectors.toMap(Category::getId, c -> c));
-    
+
         // 批量查询文章-标签关联关系
         List<ArticleTag> articleTags = articleTagService.list(new LambdaQueryWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, articleIds));
-    
+
         // 获取所有标签ID并批量查询标签信息
         List<Integer> tagIds = articleTags.stream().map(ArticleTag::getTagId).distinct().toList();
         Map<Integer, Tag> tagMap = tagIds.isEmpty() ? java.util.Collections.emptyMap() :
                 tagService.listByIds(tagIds).stream()
                         .collect(java.util.stream.Collectors.toMap(Tag::getId, t -> t));
-    
+
         // 构建文章ID到标签列表的映射
         Map<Integer, List<TagVO>> articleTagMap = articleTags.stream()
                 .collect(java.util.stream.Collectors.groupingBy(
@@ -195,7 +192,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 java.util.stream.Collectors.filtering(t -> t != null, java.util.stream.Collectors.toList())
                         )
                 ));
-    
+
         // 转换为ArticleVO列表
         List<ArticleVO> articleVOList = articles.stream()
                 .map(article -> {
@@ -213,7 +210,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                     return articleVO;
                 })
                 .toList();
-    
+
         // 构建并返回分页结果
         ArticlePageVO result = new ArticlePageVO();
         result.setTotal((int) articlePage.getTotal());
@@ -221,5 +218,40 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return result;
     }
 
+    @Override
+    public List<HotArticleVO> getHotArticle() {
+        return  this.list(new LambdaQueryWrapper<Article>()
+                .orderByDesc(Article::getViewCount)
+                .last("limit 5"))
+                .stream()
+                .map(article -> {
+                    return BeanUtil.copyProperties(article, HotArticleVO.class);
+                })
+                .toList();
+    }
 
+    @Override
+    public List<RecentArticleVO> getRecentArticle() {
+        return this.list(new LambdaQueryWrapper<Article>()
+                .orderByDesc(Article::getCreateTime)
+                .last("limit 5"))
+                .stream()
+                .map(article -> {
+                    return BeanUtil.copyProperties(article, RecentArticleVO.class);
+                })
+                .toList();
+    }
+
+    @Override
+    public List<DraftVO> getDraft() {
+        return this.list(new LambdaQueryWrapper<Article>()
+                .eq(Article::getStatus, 0)
+                .orderByDesc(Article::getUpdateTime)
+                .last("limit 5"))
+                .stream()
+                .map(article -> {
+                    return BeanUtil.copyProperties(article, DraftVO.class);
+                })
+                .toList();
+    }
 }

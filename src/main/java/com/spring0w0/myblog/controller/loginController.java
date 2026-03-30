@@ -2,7 +2,6 @@ package com.spring0w0.myblog.controller;
 
 import com.spring0w0.myblog.common.domain.Message;
 import com.spring0w0.myblog.service.IUserService;
-import com.spring0w0.myblog.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ public class loginController {
     private static final Logger logger = LoggerFactory.getLogger(loginController.class);
 
     private final IUserService userService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
     public Message<Map<String, String>> login(@RequestBody Map<String, String> loginInfo) {
