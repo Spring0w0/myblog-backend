@@ -6,6 +6,7 @@ import com.spring0w0.myblog.pojo.dto.TagDTO;
 import com.spring0w0.myblog.pojo.vo.TagDetailVO;
 import com.spring0w0.myblog.pojo.vo.TagPageVO;
 import com.spring0w0.myblog.pojo.vo.TagVO;
+import com.spring0w0.myblog.pojo.vo.UserTagPageVO;
 
 import java.util.List;
 import java.util.Map;
@@ -43,12 +44,20 @@ public interface ITagService extends IService<Tag> {
     List<TagVO> listTag();
 
     /**
-     * 分页列出所有标签
+     * (管理端)分页列出所有标签
      * @param page 页码
      * @param pageSize 每页大小
      * @return 标签列表
      */
     TagPageVO listTagByPage(Integer page, Integer pageSize, String name);
+
+    /**
+     * (用户端)分页列出所有标签·
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 标签列表
+     */
+    UserTagPageVO listTagByPage(Integer page, Integer pageSize);
 
     /**
      * 根据id获取标签

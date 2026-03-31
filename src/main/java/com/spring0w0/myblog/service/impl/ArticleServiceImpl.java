@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spring0w0.myblog.common.exception.BusinessException;
 import com.spring0w0.myblog.mapper.ArticleMapper;
+import com.spring0w0.myblog.mapper.ArticleTagMapper;
 import com.spring0w0.myblog.pojo.dto.ArticleDTO;
 import com.spring0w0.myblog.pojo.po.Article;
 import com.spring0w0.myblog.pojo.po.ArticleTag;
@@ -38,6 +39,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final IArticleTagService articleTagService;
     private final ICategoryService categoryService;
     private final ITagService tagService;
+    private final ArticleTagMapper articleTagMapper;
 
     /**
      * 添加文章
@@ -69,7 +71,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     /**
      * 修改文章
-     * @param id 文章ID
+     *
+     * @param id         文章ID
      * @param articleDTO 文章信息
      * @return 修改结果
      */
@@ -87,10 +90,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 更新文章
         this.updateById(article);
 
-            // 清理旧的关联关系
-            LambdaQueryWrapper<ArticleTag> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ArticleTag::getArticleId, id);
-            articleTagService.remove(queryWrapper);
+        // 清理旧的关联关系
+        LambdaQueryWrapper<ArticleTag> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ArticleTag::getArticleId, id);
+        articleTagService.remove(queryWrapper);
 
         // 保存新的关联关系
         List<Integer> tagIds = articleDTO.getTagIds();
@@ -104,6 +107,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     /**
      * 删除文章
+     *
      * @param id 文章ID
      * @return 删除结果
      */
@@ -120,8 +124,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     /**
      * 根据ID获取文章
+     *
      * @param id 文章ID
-      * @return 文章信息
+     * @return 文章信息
      */
     @Override
     public ArticleDTO getArticleById(Integer id) {
@@ -140,6 +145,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     }
 
+    /**
+     * 根据条件分页获取文章
+     *
+     * @param page     当前页码
+     * @param pageSize 每页大小
+     * @param status   文章状态
+     * @param title    文章标题
+     * @return 文章列表
+     */
     @Override
     public ArticlePageVO getArticlePage(Integer page, Integer pageSize, Integer status, String title) {
         // 分页获取文章基础信息
@@ -218,11 +232,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return result;
     }
 
+    /**
+     * 获取热文章
+     *
+     * @return 热文章列表
+     */
     @Override
     public List<HotArticleVO> getHotArticle() {
-        return  this.list(new LambdaQueryWrapper<Article>()
-                .orderByDesc(Article::getViewCount)
-                .last("limit 5"))
+        return this.list(new LambdaQueryWrapper<Article>()
+                        .orderByDesc(Article::getViewCount)
+                        .last("limit 5"))
                 .stream()
                 .map(article -> {
                     return BeanUtil.copyProperties(article, HotArticleVO.class);
@@ -230,11 +249,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .toList();
     }
 
+    /**
+     * 获取最近文章
+     *
+     * @return 最近文章列表
+     */
     @Override
     public List<RecentArticleVO> getRecentArticle() {
         return this.list(new LambdaQueryWrapper<Article>()
-                .orderByDesc(Article::getCreateTime)
-                .last("limit 5"))
+                        .orderByDesc(Article::getCreateTime)
+                        .last("limit 5"))
                 .stream()
                 .map(article -> {
                     return BeanUtil.copyProperties(article, RecentArticleVO.class);
@@ -242,16 +266,125 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .toList();
     }
 
+    /**
+     * 获取草稿
+     *
+     * @return 草稿列表
+     */
     @Override
     public List<DraftVO> getDraft() {
         return this.list(new LambdaQueryWrapper<Article>()
-                .eq(Article::getStatus, 0)
-                .orderByDesc(Article::getUpdateTime)
-                .last("limit 5"))
+                        .eq(Article::getStatus, 0)
+                        .orderByDesc(Article::getUpdateTime)
+                        .last("limit 5"))
                 .stream()
                 .map(article -> {
                     return BeanUtil.copyProperties(article, DraftVO.class);
                 })
                 .toList();
+    }
+
+    /**
+     * 根据条件分页获取文章卡片信息
+     * @param page 当前页码
+     * @param pageSize 每页大小
+     * @param tagIds 标签ID列表
+     * @param categoryId 分类ID
+     * @return 文章卡片分页信息
+     */
+    @Override
+    public ArticleCardListVO getArticleCardPage(Integer page, Integer pageSize, List<Integer> tagIds, Integer categoryId) {
+        ArticleCardListVO result = new ArticleCardListVO();
+
+        // 构建基础查询条件：status=1
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<Article>()
+                .eq(Article::getStatus, 1)
+                .eq(ObjectUtil.isNotEmpty(categoryId), Article::getCategoryId, categoryId);
+
+        // 如果传入了标签ID，需要筛选同时拥有所有标签的文章
+        if (ObjectUtil.isNotEmpty(tagIds)) {
+            // 查询同时拥有所有传入标签的文章ID
+            List<Integer> articleIdsWithAllTags = articleTagMapper.selectArticleIdsWithAllTags(tagIds, tagIds.size());
+
+            // 没有符合条件的文章，返回空对象
+            if (articleIdsWithAllTags.isEmpty()) {
+                result.setTotal(0);
+                result.setList(java.util.Collections.emptyList());
+                return result;
+            }
+            queryWrapper.in(Article::getId, articleIdsWithAllTags);
+        }
+
+        // 分页查询
+        queryWrapper.orderByDesc(Article::getUpdateTime);
+        Page<Article> pageParam = new Page<>(page, pageSize);
+        Page<Article> articlePage = this.page(pageParam, queryWrapper);
+        List<Article> articles = articlePage.getRecords();
+
+        // 没有查到文章，返回空对象
+        if (ObjectUtil.isEmpty(articles)) {
+            result.setTotal(0);
+            result.setList(java.util.Collections.emptyList());
+            return result;
+        }
+
+        // 获取所有文章ID和分类ID
+        List<Integer> articleIds = articles.stream().map(Article::getId).toList();
+        List<Integer> categoryIds = articles.stream().map(Article::getCategoryId).distinct().toList();
+
+        // 批量查询分类信息，构建Map
+        Map<Integer, Category> categoryMap = categoryService.listByIds(categoryIds).stream()
+                .collect(java.util.stream.Collectors.toMap(Category::getId, c -> c));
+
+        // 批量查询文章-标签关联关系
+        List<ArticleTag> articleTags = articleTagService.list(new LambdaQueryWrapper<ArticleTag>()
+                .in(ArticleTag::getArticleId, articleIds));
+
+        // 获取所有标签ID并批量查询标签信息
+        List<Integer> allTagIds = articleTags.stream().map(ArticleTag::getTagId).distinct().toList();
+        Map<Integer, Tag> tagMap = allTagIds.isEmpty() ? java.util.Collections.emptyMap() :
+                tagService.listByIds(allTagIds).stream()
+                        .collect(java.util.stream.Collectors.toMap(Tag::getId, t -> t));
+
+        // 构建文章ID到标签列表的映射
+        Map<Integer, List<TagVO>> articleTagMap = articleTags.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        ArticleTag::getArticleId,
+                        java.util.stream.Collectors.mapping(
+                                at -> {
+                                    Tag tag = tagMap.get(at.getTagId());
+                                    if (tag != null) {
+                                        TagVO tagVO = new TagVO();
+                                        tagVO.setId(tag.getId());
+                                        tagVO.setName(tag.getName());
+                                        return tagVO;
+                                    }
+                                    return null;
+                                },
+                                java.util.stream.Collectors.filtering(t -> t != null, java.util.stream.Collectors.toList())
+                        )
+                ));
+
+        // 转换为ArticleCardVO列表
+        List<ArticleCardVO> cardList = articles.stream()
+                .map(article -> {
+                    ArticleCardVO cardVO = BeanUtil.copyProperties(article, ArticleCardVO.class);
+                    // 设置分类信息
+                    Category category = categoryMap.get(article.getCategoryId());
+                    if (category != null) {
+                        CategoryVO categoryVO = new CategoryVO();
+                        categoryVO.setId(category.getId());
+                        categoryVO.setName(category.getName());
+                        cardVO.setCategory(categoryVO);
+                    }
+                    // 设置标签列表
+                    cardVO.setTag(articleTagMap.getOrDefault(article.getId(), java.util.Collections.emptyList()));
+                    return cardVO;
+                })
+                .toList();
+
+        result.setTotal((int) articlePage.getTotal());
+        result.setList(cardList);
+        return result;
     }
 }

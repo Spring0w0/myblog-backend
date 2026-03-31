@@ -16,6 +16,7 @@ import com.spring0w0.myblog.pojo.dto.TagDTO;
 import com.spring0w0.myblog.pojo.vo.TagDetailVO;
 import com.spring0w0.myblog.pojo.vo.TagPageVO;
 import com.spring0w0.myblog.pojo.vo.TagVO;
+import com.spring0w0.myblog.pojo.vo.UserTagPageVO;
 import com.spring0w0.myblog.service.IArticleTagService;
 import com.spring0w0.myblog.service.ITagService;
 import lombok.RequiredArgsConstructor;
@@ -93,7 +94,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
     }
 
     /**
-     * 分页列出所有标签
+     * (管理端)分页列出所有标签
      * @param page 页码
      * @param pageSize 每页大小
       * @param name 标签名
@@ -110,6 +111,25 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
         tagPageVO.setTotal((int) tagPage.getTotal());
         tagPageVO.setList(BeanUtil.copyToList(tagPage.getRecords(), TagDetailVO.class));
         return tagPageVO;
+    }
+
+    /**
+     * (用户端)分页列出所有标签
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 标签列表
+     */
+    @Override
+    public UserTagPageVO listTagByPage(Integer page, Integer pageSize) {
+        Page<Tag> pageParam = new Page<>(page, pageSize);
+        LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<Tag>()
+                .eq(Tag::getStatus, 1)
+                .orderByDesc(Tag::getCreateTime);
+        Page<Tag> tagPage = this.page(pageParam, wrapper);
+        UserTagPageVO userTagPageVO = new UserTagPageVO();
+        userTagPageVO.setTotal((int) tagPage.getTotal());
+        userTagPageVO.setList(BeanUtil.copyToList(tagPage.getRecords(), TagVO.class));
+        return userTagPageVO;
     }
 
     /**

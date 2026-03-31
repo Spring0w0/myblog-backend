@@ -9,6 +9,7 @@ import com.spring0w0.myblog.common.exception.BusinessException;
 import com.spring0w0.myblog.mapper.WebConfigMapper;
 import com.spring0w0.myblog.pojo.dto.WebConfigDTO;
 import com.spring0w0.myblog.pojo.po.WebConfig;
+import com.spring0w0.myblog.pojo.vo.UserWebConfigVO;
 import com.spring0w0.myblog.pojo.vo.WebConfigVO;
 import com.spring0w0.myblog.service.IWebConfigService;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ import java.util.Map;
 public class WebConfigService extends ServiceImpl<WebConfigMapper, WebConfig> implements IWebConfigService {
 
     /**
-     * 获取所有网站配置
+     * (管理端)获取所有网站配置
      * @return 所有网站配置
      */
     @Override
@@ -49,6 +50,33 @@ public class WebConfigService extends ServiceImpl<WebConfigMapper, WebConfig> im
             return vo;
         }).toList();
 
+    }
+
+    /**
+     * (用户端)获取所有网站配置
+     * @return 所有网站配置
+     */
+    @Override
+    public List<UserWebConfigVO> getAllUserWebConfig() {
+        // 1.查询数据库原始数据
+        List<WebConfig> webConfigs = this.list();
+
+        // 2.转换为VO列表
+        return webConfigs.stream().map(config -> {
+            UserWebConfigVO vo = BeanUtil.copyProperties(config, UserWebConfigVO.class);
+
+            String val = config.getConfigValue();
+
+            // 特殊处理
+            if (JSONUtil.isTypeJSON(val)) {
+                // 如果是json字符串，解析成JSONArray或JSONObject
+                vo.setConfigValue(JSONUtil.parse(val));
+            }else {
+                // 保持原样
+                vo.setConfigValue(val);
+            }
+            return vo;
+        }).toList();
     }
 
     /**

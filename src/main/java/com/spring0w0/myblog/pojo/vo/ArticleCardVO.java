@@ -9,7 +9,7 @@ import java.util.List;
  * @author Spring0w0
  */
 @Data
-public class ArticleVO {
+public class ArticleCardVO {
 
     /**
      * 文章ID
@@ -27,19 +27,9 @@ public class ArticleVO {
     private String cover;
 
     /**
-     * 文章状态 0-禁用 1-发布
+     * 文章摘要
      */
-    private Integer status;
-
-    /**
-     * 阅读量
-     */
-    private Integer viewCount;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+    private String summary;
 
     /**
      * 更新时间
@@ -55,5 +45,7 @@ public class ArticleVO {
      * 分类信息
      */
     private CategoryVO category;
+
+
 
 }

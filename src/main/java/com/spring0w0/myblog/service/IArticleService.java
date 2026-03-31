@@ -1,13 +1,9 @@
 package com.spring0w0.myblog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.spring0w0.myblog.common.domain.Message;
 import com.spring0w0.myblog.pojo.dto.ArticleDTO;
 import com.spring0w0.myblog.pojo.po.Article;
-import com.spring0w0.myblog.pojo.vo.ArticlePageVO;
-import com.spring0w0.myblog.pojo.vo.DraftVO;
-import com.spring0w0.myblog.pojo.vo.HotArticleVO;
-import com.spring0w0.myblog.pojo.vo.RecentArticleVO;
+import com.spring0w0.myblog.pojo.vo.*;
 
 import java.util.List;
 
@@ -72,4 +68,13 @@ public interface IArticleService extends IService<Article> {
      */
     List<DraftVO> getDraft();
 
+    /**
+     * 获取文章卡片分页
+     * @param page 当前页码
+     * @param pageSize 每页大小
+     * @param tagIds 标签ID列表
+     * @param categoryId 分类ID
+     * @return 文章卡片分页
+     */
+    ArticleCardListVO getArticleCardPage(Integer page, Integer pageSize, List<Integer> tagIds, Integer categoryId);
 }
