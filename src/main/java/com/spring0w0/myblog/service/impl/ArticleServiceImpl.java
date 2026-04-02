@@ -387,4 +387,29 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         result.setList(cardList);
         return result;
     }
+
+    /**
+     * 根据ID获取文章详情
+     */
+    @Override
+    public ArticleDetailVO getArticleDetail(Integer id) {
+        Article article = this.getById(id);
+        // 文章阅读数+1
+        article.setViewCount(article.getViewCount() + 1);
+        this.updateById(article);
+        return BeanUtil.copyProperties(article, ArticleDetailVO.class);
+    }
+
+    @Override
+    public List<ArticleArchiveVO> getArticleArchive() {
+        List<Article> articles = this.list(new LambdaQueryWrapper<Article>()
+                        .eq(Article::getStatus, 1)
+                        .orderByDesc(Article::getUpdateTime));
+
+        return articles.stream()
+                .map(article -> {
+                    return BeanUtil.copyProperties(article, ArticleArchiveVO.class);
+                })
+                .toList();
+    }
 }

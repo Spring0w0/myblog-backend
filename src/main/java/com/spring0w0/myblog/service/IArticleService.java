@@ -77,4 +77,18 @@ public interface IArticleService extends IService<Article> {
      * @return 文章卡片分页
      */
     ArticleCardListVO getArticleCardPage(Integer page, Integer pageSize, List<Integer> tagIds, Integer categoryId);
+
+    /**
+     * 获取文章详情
+     * @param id 文章ID
+     * @return 文章详情
+     */
+    ArticleDetailVO getArticleDetail(Integer id);
+
+    /**
+     * 获取文章归档
+     * @return 文章归档信息
+     */
+    List<ArticleArchiveVO> getArticleArchive();
+
 }
