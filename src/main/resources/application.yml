@@ -5,7 +5,7 @@ spring:
 
 # JWT配置
 jwt:
-  secret: MizukiSpring0w0BlogSecretKey2024!  # JWT密钥，至少32字符，生产环境请修改
+  secret: MizukiSpring0w0BlogSecretKey2024!  # JWT密钥，至少32字符
   expiration: 7200  # JWT过期时间，单位秒
 
 # 日志配置

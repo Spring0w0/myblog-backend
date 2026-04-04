@@ -17,6 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${upload.path}")
     private String uploadPath;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile; // 获取当前环境标识
+
     private final AdminInterceptor adminInterceptor;
 
     public WebConfig(AdminInterceptor adminInterceptor) {
@@ -25,9 +28,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 配置静态资源处理器，将 /uploads/** 映射到 uploadPath 目录
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath);
+        if ("dev".equals(activeProfile)) {
+            // 配置静态资源处理器，将 /uploads/** 映射到 uploadPath 目录
+            registry.addResourceHandler("/uploads/**")
+                    .addResourceLocations("file:" + uploadPath);
+        }
     }
 
     @Override
@@ -40,11 +45,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // 配置CORS，允许跨域请求
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+        if ("dev".equals(activeProfile)) {
+            // 配置CORS，允许跨域请求
+            registry.addMapping("/**")
+                    .allowedOrigins("*")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+        }
     }
 }

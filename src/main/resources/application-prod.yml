@@ -1,25 +1,26 @@
 # 生产环境配置
 upload:
-  path: /app/uploads/  # 生产环境上传路径（容器内路径）
-  base-url: http://localhost:8080/uploads  # 图片访问基础URL（生产环境请替换为实际域名）
+  path: /app/uploads/
+  # 修改为真实的访问地址，Nginx 会截获 /uploads 路径
+  base-url: http://47.98.184.133/uploads
 
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB #最大10MB
+      max-file-size: 10MB
       max-request-size: 10MB
-  web:
-    resources:
-      static-locations: file:${upload.path},classpath:/static/
+#  web:
+#    resources:
+#      static-locations: file:${upload.path}
   application:
     name: myblog-backend
 
   # 数据库配置
   datasource:
-    url: jdbc:mysql://mysql:3306/my_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: admin
-    password: admin
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 确保 mysql 是 docker-compose 里的服务名
+    url: jdbc:mysql://mysql:3306/my_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true
+    username: root        # 建议确认容器里的用户名
+    password: 1234  # 记得修改
 
 # 服务器配置
 server:
@@ -30,4 +31,11 @@ mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.spring0w0.myblog.entity
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 生产环境关闭控制台打印 SQL
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+
+# JWT配置
+jwt:
+  # 生产环境使用强密钥
+  secret: qZ2#k9P&mN5vX8zL1*jR4wE7tY0uI3oQ6pA9sD2fG5hJ8kL1!  # JWT密钥
